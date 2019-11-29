@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-web-site
+spec:
+  
+  ports:
+    - name: 5000-tcp
+      port: 5000 ## Port on nodes which bind with target ports
+      protocol: TCP
+      targetPort: 5000 ##Ports in Pod on which service is running
+  selector:
+    deploymentconfig: python-web-site ## This is name of deployment, which we can check from Application --> Deployment
+  sessionAffinity: None
+  type: ClusterIP
