@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  
+  name: python-web-site
+spec:
+   host: infra.openshift.com
+   port: ## These two lines are optional, if we do not mention this then any request comes to any port will re-directed
+    targetPort: 5000-tcp
+   to:
+    kind: Service
+    name: python-web-site ## Name of service
