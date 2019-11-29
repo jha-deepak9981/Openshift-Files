@@ -1,0 +1,36 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  
+  name: python-web-site
+  
+spec:
+  
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'webserver:latest'
+  
+  runPolicy: Serial
+  source:
+    git:
+      ref: master
+      uri: 'https://github.com/jha-deepak9981/python-flask-docker-hello-world.git'
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        
+    type: Docker
+  triggers:
+    - imageChange:
+        lastTriggeredImageID: >-
+          docker.io/centos/python-36-centos7@sha256:3403a88a4161c8b8029f4a7d520d4d6e95aeb179f5974b1d2a16b1cfb753cc25
+      type: ImageChange
+    - type: ConfigChange
+    - generic:
+        secret: 9c85c665c1669333
+      type: Generic
+    - github:
+        secret: a77ae530a9bf7094
+      type: GitHub
