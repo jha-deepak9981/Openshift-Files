@@ -41,14 +41,6 @@ yum install python2-pip.noarch zile.x86_64 -y
 sed -i -e "s/^enabled=1/enabled=0/g" /etc/yum.repos.d/epel.repo
 
 
---> Create Openshift repo on all servers
-cat > /etc/yum.repos.d/openshift.repo <<EOF
-name=openshift
-basurl=http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin/
-gpgcheck=0
-enabled=1
-EOF
-
 --> Make sure NetworkManager service should be running on all servers
 systemctl status NetworkManager
 systemctl start NetworkManager
