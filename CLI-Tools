@@ -96,4 +96,17 @@ imagestream "ruby-ex" deleted
 [root@master ~]# oc delete project test-cli
 project "test-cli" deleted
 
+=================================================================================
+Importing JSON YAML FIle
 
+[root@master ~]# oc apply -f Imagestream-template.yml
+buildconfig "python-web-site-docker" created
+
+[root@master ~]# oc apply -f BuildConfig-template.yml
+buildconfig "python-web-site-docker" created
+
+[root@master ~]# oc apply -f service-template.yml
+buildconfig "python-web-site-docker" created
+
+[root@master ~]# oc apply -f route-template.yml
+buildconfig "python-web-site-docker" created
