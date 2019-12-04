@@ -20,7 +20,7 @@ You must specify the type of resource to get. Valid resource types include:
   * certificatesigningrequests (aka 'csr')
   * clusterrolebindings
   * clusterroles
-
+[root@master ~]# oc get all
 
 [root@master ~]# oc get route
 NAME      HOST/PORT            PATH      SERVICES   PORT       TERMINATION   WILDCARD
@@ -120,6 +120,7 @@ Events:            <none>
 Managing Openshift by CLI - exec
 ======================================
 [root@master ~]# oc exec simple-webapp-color-1-lwh4t cat /etc/resolv.conf
+[root@master ~]# oc exec simple-webapp-color-1-lwh4t bash
 
 Managing Openshift by CLI - export
 ======================================
