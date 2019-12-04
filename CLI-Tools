@@ -1,0 +1,99 @@
+oc login https://master.openshift.com:8443
+oc get project
+oc new-project test-cli
+oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
+oc new-app python~https://github.com/jha-deepak9981/python-flask-docker-hello-world.git
+oc logs -f bc/ruby-ex
+oc status
+oc expose svc/ruby-ex
+oc expose svc/ruby-ex --hostname=app2.openshift.com
+Get Status
+============================================================================================================
+Managing Openshift by CLI - Get
+
+[root@master ~]# oc get
+  * all
+  * buildconfigs (aka 'bc')
+  * builds
+  
+[root@master ~]# oc get route
+NAME      HOST/PORT            PATH      SERVICES   PORT       TERMINATION   WILDCARD
+ruby-ex   app2.openshift.com             ruby-ex    8080-tcp                 None
+[root@master ~]# oc get imagestreams
+NAME              DOCKER REPO                                                 TAGS      UPDATED
+ruby-22-centos7   docker-registry.default.svc:5000/test-cli/ruby-22-centos7   latest    40 minutes ago
+
+[root@master ~]# oc get dc
+NAME      REVISION   DESIRED   CURRENT   TRIGGERED BY
+ruby-ex   1          1         1         config,image(ruby-ex:latest)
+
+[root@master ~]# oc get bc
+NAME      TYPE      FROM      LATEST
+ruby-ex   Source    Git       1
+
+[root@master ~]# oc get pod
+NAME              READY     STATUS      RESTARTS   AGE
+ruby-ex-1-build   0/1       Completed   0          16m
+ruby-ex-1-hh4xr   1/1       Running     0          10m
+
+[root@master ~]# oc get pod -o wide
+NAME              READY     STATUS      RESTARTS   AGE       IP            NODE
+ruby-ex-1-build   0/1       Completed   0          16m       10.130.0.94   node2.openshift.com
+ruby-ex-1-hh4xr   1/1       Running     0          10m       10.130.0.95   node2.openshift.com
+
+[root@master ~]# oc get svc
+NAME      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+ruby-ex   ClusterIP   172.30.54.207   <none>        8080/TCP   17m
+
+[root@master ~]# oc describe svc ruby-ex
+Name:              ruby-ex
+Namespace:         test-cli
+Labels:            app=ruby-ex
+Annotations:       openshift.io/generated-by=OpenShiftNewApp
+Selector:          app=ruby-ex,deploymentconfig=ruby-ex
+Type:              ClusterIP
+IP:                172.30.54.207
+Port:              8080-tcp  8080/TCP
+TargetPort:        8080/TCP
+Endpoints:         10.130.0.95:8080
+Session Affinity:  None
+Events:            <none>
+==============================================================================================================
+Managing Openshift by CLI - Scale
+
+[root@master ~]# oc scale dc/ruby-ex --replicas=2
+deploymentconfig "ruby-ex" scaled
+[root@master ~]# oc get dc
+NAME      REVISION   DESIRED   CURRENT   TRIGGERED BY
+ruby-ex   1          2         2         config,image(ruby-ex:latest)
+[root@master ~]# oc get pod -o wide
+NAME              READY     STATUS              RESTARTS   AGE       IP            NODE
+ruby-ex-1-5msqd   0/1       Running   0          4m        5m        10.130.0.97   node1.openshift.com
+ruby-ex-1-build   0/1       Completed           0          29m       10.130.0.94   node2.openshift.com
+ruby-ex-1-hh4xr   1/1       Running             0          23m       10.130.0.95   node2.openshift.com
+
+===========================================================================================================
+Managing Openshift by CLI - Delete
+
+[root@master ~]# oc delete pod <Pod name>
+pod "ruby-ex-1-hh4xr" deleted
+
+[root@master ~]# oc delete bc ruby-ex
+buildconfig "ruby-ex" deleted
+
+[root@master ~]# oc delete dc ruby-ex
+deploymentconfig "ruby-ex" deleted
+
+[root@master ~]# oc delete svc ruby-ex
+service "ruby-ex" deleted
+
+[root@master ~]# oc delete route ruby-ex
+route "ruby-ex" deleted
+
+[root@master ~]# oc delete imagestreams ruby-ex
+imagestream "ruby-ex" deleted
+
+[root@master ~]# oc delete project test-cli
+project "test-cli" deleted
+
+
