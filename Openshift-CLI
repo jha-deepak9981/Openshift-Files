@@ -2,11 +2,15 @@ oc login https://master.openshift.com:8443
 oc get project
 oc new-project test-cli
 oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
+oc new-app python~https://github.com/jha-deepak9981/python-flask-docker-hello-world.git
+oc new-app --docker-image=workstation.lab.example.com:5000/openshift/hello-openshift --insecure-registry --name=hello
 oc logs -f bc/ruby-ex
 oc status
 oc expose svc/ruby-ex
 oc expose svc/ruby-ex --hostname=app2.openshift.com
 
+Managing Openshift by CLI - Get
+=============================================
 [root@master ~]# oc get
 You must specify the type of resource to get. Valid resource types include:
 
@@ -49,22 +53,6 @@ ruby-ex-1-hh4xr   1/1       Running     0          10m       10.130.0.95   node2
 NAME      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 ruby-ex   ClusterIP   172.30.54.207   <none>        8080/TCP   17m
 
-[root@master ~]# oc describe svc ruby-ex
-Name:              ruby-ex
-Namespace:         test-cli
-Labels:            app=ruby-ex
-Annotations:       openshift.io/generated-by=OpenShiftNewApp
-Selector:          app=ruby-ex,deploymentconfig=ruby-ex
-Type:              ClusterIP
-IP:                172.30.54.207
-Port:              8080-tcp  8080/TCP
-TargetPort:        8080/TCP
-Endpoints:         10.130.0.95:8080
-Session Affinity:  None
-Events:            <none>
-
-[root@master ~]# oc scale dc/ruby-ex --replicas=2
-deploymentconfig "ruby-ex" scaled
 [root@master ~]# oc get dc
 NAME      REVISION   DESIRED   CURRENT   TRIGGERED BY
 ruby-ex   1          2         2         config,image(ruby-ex:latest)
@@ -75,6 +63,14 @@ ruby-ex-1-5msqd   0/1       Running   0          4m        5m        10.130.0.97
 ruby-ex-1-build   0/1       Completed           0          29m       10.130.0.94   node2.openshift.com
 ruby-ex-1-hh4xr   1/1       Running             0          23m       10.130.0.95   node2.openshift.com
 
+
+Managing Openshift by CLI - Scale
+======================================
+[root@master ~]# oc scale dc/ruby-ex --replicas=2
+deploymentconfig "ruby-ex" scaled
+
+Managing Openshift by CLI - delete
+======================================
 [root@master ~]# oc delete pod <Pod name>
 pod "ruby-ex-1-hh4xr" deleted
 
@@ -96,5 +92,67 @@ imagestream "ruby-ex" deleted
 [root@master ~]# oc delete project test-cli
 project "test-cli" deleted
 
+Managing Openshift by CLI - describe
+======================================
+[root@master ~]# oc describe node master
+[root@master ~]# oc describe node infra
+[root@master ~]# oc describe node node1
+[root@master ~]# oc describe node node2
+[root@master ~]# oc describe pod simple-webapp-color-1-lwh4t
+[root@master ~]# oc describe svc ruby-ex
+Name:              ruby-ex
+Namespace:         test-cli
+Labels:            app=ruby-ex
+Annotations:       openshift.io/generated-by=OpenShiftNewApp
+Selector:          app=ruby-ex,deploymentconfig=ruby-ex
+Type:              ClusterIP
+IP:                172.30.54.207
+Port:              8080-tcp  8080/TCP
+TargetPort:        8080/TCP
+Endpoints:         10.130.0.95:8080
+Session Affinity:  None
+Events:            <none>
+
+Managing Openshift by CLI - exec
+======================================
+[root@master ~]# oc exec simple-webapp-color-1-lwh4t cat /etc/resolv.conf
+
+Managing Openshift by CLI - export
+======================================
+[root@master ~]# oc export pod simple-webapp-color-1-lwh4t
+[root@master ~]# oc export svc simple-webapp-color
+
+Managing Openshift by CLI - apply
+======================================
 [root@master ~]# oc apply -f Imagestream-template.yml
 buildconfig "python-web-site-docker" created
+
+Secure Route
+==========================================
+Create key, CSR and certificate
+# openssl genrsa -out openshift.key 2048
+# openssl req -new -key openshift.key -out openshift.csr
+# openssl x509 -req -days 366 -in example.csr -signkey openshift.key -out openshift.crt
+
+Create project and lunch application
+# oc project secure-route
+# oc new-app python~https://github.com/jha-deepak9981/simple-webapp-color.git
+# oc logs -f bc/simple-webapp-color
+
+Create unsecure route
+# oc get svc
+# oc create route --service=simple-webapp-color --hostname=app1.openshift.com
+
+Access by POD IP or route IP
+oc get pods -o wide
+# curl http://10.130.0.105:8080
+# curl http://app1.openshift.com
+
+Create secure route
+# oc get route
+# oc delete route simple-webapp-color
+# oc create route edge --service=simple-webapp-color --hostname=app1.openshift.com --key=openshift.key --cert=openshift.crt
+# oc get route
+# curl http://10.130.0.105:8080 (It will open because it is edge termination)
+# curl https://app1.openshift.com
+
