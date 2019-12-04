@@ -63,6 +63,10 @@ ruby-ex-1-5msqd   0/1       Running   0          4m        5m        10.130.0.97
 ruby-ex-1-build   0/1       Completed           0          29m       10.130.0.94   node2.openshift.com
 ruby-ex-1-hh4xr   1/1       Running             0          23m       10.130.0.95   node2.openshift.com
 
+[root@master ~]# oc get event -n secure-route
+LAST SEEN   FIRST SEEN   COUNT     NAME                                            KIND                    SUBOBJECT                                TYPE      REASON                  SOURCE                         MESSAGE
+58m         58m          1         simple-webapp-color-1-build.15dd3b137e849a9e    Pod                                                              Normal    Scheduled               default-scheduler              Successfully assigned simple-webapp-color-1-build to node1.openshift.com
+
 
 Managing Openshift by CLI - Scale
 ======================================
@@ -126,6 +130,18 @@ Managing Openshift by CLI - apply
 ======================================
 [root@master ~]# oc apply -f Imagestream-template.yml
 buildconfig "python-web-site-docker" created
+
+Managing Openshift by CLI - rsh 
+======================================
+[root@master ~]# oc rsh simple-webapp-color-1-lwh4t (pod name)
+
+Managing Openshift by CLI - rsync
+======================================
+[root@master ~]# oc rsync simple-webapp-color-1-lwh4t:/opt/app-root /tmp (pod:dir-name local-dir)
+
+Managing Openshift by CLI - cp
+======================================
+[root@master ~]# oc cp ansible simple-webapp-color-1-lwh4t:/tmp (local-dir to pod:dir-name), rsync also can be used here
 
 Secure Route
 ==========================================
