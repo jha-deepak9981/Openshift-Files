@@ -1,0 +1,25 @@
+kind: "DeploymentConfig"
+apiVersion: "v1"
+metadata:
+  name: "app1"
+spec:
+  template: 
+    metadata:
+      labels:
+        name: "app1"
+    spec:
+      containers:
+        - name: "helloworld"
+          image: "172.24.0.150:5000/sample-python"
+          ports:
+            - containerPort: 8080 ## Port number of container
+              protocol: "TCP"
+  replicas: 2 
+  triggers:
+    - type: "ConfigChange" 
+    
+  strategy: 
+    type: "Rolling"
+  paused: false 
+  revisionHistoryLimit: 2 
+  minReadySeconds: 0
