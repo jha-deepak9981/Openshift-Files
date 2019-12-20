@@ -173,3 +173,20 @@ Create secure route
 # curl http://10.130.0.105:8080 (It will open because it is edge termination)
 # curl https://app1.openshift.com
 
+=====================================================
+Use Case 1 - We do not want to push the docker images in openshift registry and do not want to use imagestream, as fully docker images is prepared and placed in private docker registry
+Step1: a) Set private registry as insecure registry on all worker nodes
+grep insecure /etc/sysconfig/docker
+INSECURE_REGISTRY='--insecure-registry 172.24.0.150:5000'
+Step2: Restart docker service on worker nodes
+Step3: Download template file and modify the image name and them import it
+
+=====================================================
+Use Case 2 - We do not want to push the docker images in openshift registry and we would like to create imagestream, as fully docker images is prepared and placed in private docker registry
+Step1: a) Set private registry as insecure registry on all worker nodes
+grep insecure /etc/sysconfig/docker
+INSECURE_REGISTRY='--insecure-registry 172.24.0.150:5000'
+Step2: Restart docker service on worker nodes
+Step3: oc import-image sample-app --from=172.24.0.150:5000/sample-python --confirm --insecure=true (It will create image stream)
+Step4: oc new-app --image-stream=sample-app (It will deploy by image stream)
+
