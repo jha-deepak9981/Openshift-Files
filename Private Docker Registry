@@ -1,0 +1,45 @@
+On Registry Server
+=========================================================
+# docker run -d -p 5000:5000 --restart=always --name registry registry:2
+# firewall-cmd --permanent --add-port=5000/udp
+# firewall-cmd --permanent --add-port=5000/tcp
+# firewall-cmd --reload
+
+On Client Server
+========================================================
+# grep insecure /etc/sysconfig/docker
+INSECURE_REGISTRY='--insecure-registry 172.24.0.150:5000'
+
+# systemctl restart docker
+
+# cat Dockerfile
+FROM ubuntu:16.04
+
+RUN apt-get update && apt-get install -y python python-pip
+
+RUN pip install flask
+
+COPY app.py /opt/
+
+ENTRYPOINT FLASK_APP=/opt/app.py flask run --host=0.0.0.0
+
+# cat app.py
+import os
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def main():
+        return "Welcome!"
+
+@app.route('/how are you')
+def hello():
+        return 'I am good, how about you?'
+
+if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080)
+
+# docker build -t 172.24.0.150:5000/sample-python:latest .
+# docker pull centos
+# docker tag <image-id> 172.24.0.150:5000/centos:latest
+# docker push 172.24.0.150:5000/centos:latest
