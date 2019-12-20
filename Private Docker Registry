@@ -4,7 +4,7 @@ On Registry Server
 # firewall-cmd --permanent --add-port=5000/udp
 # firewall-cmd --permanent --add-port=5000/tcp
 # firewall-cmd --reload
-
+# curl -X GET http://localhost:5000/v2/_catalog ## To check name of images uploaded
 On Client Server
 ========================================================
 # grep insecure /etc/sysconfig/docker
