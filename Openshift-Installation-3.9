@@ -127,6 +127,14 @@ openshift_hosted_registry_selector='region=infra'
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
 openshift_master_htpasswd_users={'demo': '$apr1$4Wpwz1wm$rd9xHn0QgeDUV1hPVcfrN/'}
 
+##--------###
+# If you can pull the image down to the node with docker pull, this generally indicates an issue with skopeo which can be ignored. To ignore this error, please set the following variable in your Ansible inventory file
+#openshift_disable_check=docker_image_availability
+
+#osm_cluster_network_cidr=10.100.0.0/16 #If we want to change the network ID for Pods
+#openshift_portal_net=172.100.0.0/16 #If we want to change network ID for cluster IPs
+
+
  
  Note - (Password redhat@123)
 
