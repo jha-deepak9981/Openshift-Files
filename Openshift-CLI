@@ -399,3 +399,45 @@ drwxr-xr-x 3 1000000000 nfsnobody 21 Oct 21 14:14 registry-storage-project
 
 You have successfuly configured Openshift Docker Registry with Persistent Storage using NFS Share. 
 
+===================================================================================================
+Scaling Pods Lab
+===================================================================================================
+oc login
+oc new-project scaling
+
+oc new-app -o yaml https://github.com/jha-deepak9981/simple-webapp-color.git > ~/scaling.yaml ## It will not build or deploy anything, it will create a yaml file with all information
+
+vim ~/scaling.yaml ## search for replica and change it to 3 or any number
+
+oc apply -f ~/scaling.yaml
+
+oc logs -f bc "simple-webapp-color"
+
+watch -n 3 oc get build
+
+oc get pods ## Repeat this command till we get 3 pods active
+oc get pods -o wide
+
+oc get service
+oc expose service simple-webapp-color --hostname=app1.openshift.com
+
+oc get routes
+
+cat /etc/hosts ## Make entry in host file if DNS is not configured
+172.24.0.151    master.openshift.com    master
+172.24.0.152    infra.openshift.com     infra
+172.24.0.152    app1.openshift.com     app1
+172.24.0.153    node1.openshift.com     node1
+172.24.0.154    node2.openshift.com     node2
+
+for i in {1..5}; do curl -s \http://app1.openshift.com | grep color; done
+
+oc get dc
+oc describe dc simple-webapp-color | grep Replica
+
+oc scale --replicas=5 dc simple-webapp-color ## Scale UP
+oc describe dc simple-webapp-color | grep Replica
+
+oc get pods -o wide
+oc scale --replicas=2 dc simple-webapp-color ## Scale down
+oc get pods -o wide
