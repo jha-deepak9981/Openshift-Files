@@ -441,3 +441,69 @@ oc describe dc simple-webapp-color | grep Replica
 oc get pods -o wide
 oc scale --replicas=2 dc simple-webapp-color ## Scale down
 oc get pods -o wide
+
+=======================================================================
+Pod Scheduling Lab
+=======================================================================
+1. Update the region label on the node1 host to services, and on the node2 host to applications.
+2. As the OpenShift admin user, create a new project named manage-review. 
+3. Deploy the new version application scaled to three pods. Use any application source with 3 replica
+4. Configure the deployment configuration to request pods to be scheduled only to the applications region.
+5. Verify that a new deployment was started and a new set of version pods are running on the node2 node. Wait for all three new application pods to be ready and running.
+6. Change the region label on the node1 host to applications, in preparation for maintenance of the node2 host.
+7. Prepare the node2 host for maintenance, by setting it to unschedulable and then draining the node. Delete all of its pods and recreate them on the node1 host.
+8. Create a route to allow external communication with the version application. The route must be accessible using the host name app1.openshift.com.
+9. Test the application using the curl command. The exact version string depends on previous exercises that use the same Git repository.
+10. Clean up. Revert the node1 and node2 hosts to use the region: infra label and have both hosts configured as schedulable.
+
+===========================================================================
+Solution
+===========================================================================
+1a. oc label node node2.openshift.com region=apps --overwrite=true
+1b. oc label node node1.openshift.com region=service --overwrite=true
+1c. oc get pods -o wide
+1d. oc get node -L region
+
+2a. oc new-project scale
+
+3a. oc new-app https://github.com/jha-deepak9981/simple-webapp-color.git
+3b. oc logs -f bc/simple-webapp-color
+3c. oc get bc
+3d. oc logs -f bc/simple-webapp-color
+3e. oc scale dc/simple-webapp-color --replicas=3
+3f. oc get pods -o wide
+3g. oc get node -L region
+
+4a. oc export dc/simple-webapp-color -o yaml > simple-webapp-color.yaml
+4b. vim simple-webapp-color.yaml
+
+##These lines should be added after the second spec attribute in the file. Make sure the indentation is correct, according to the previous listing.
+...
+template:
+	metadata:
+...
+ spec:
+ nodeSelector:
+	region: applications
+ containers:
+
+4c. oc apply -f simple-webapp-color.yaml
+
+5a. oc get pods -o wide
+
+6a. oc label node node1.openshift.com region=apps --overwrite=true
+6b. oc get node -L region
+6c. oc get pods -o wide
+
+7a. oc adm manage-node --schedulable=false node2.openshift.com
+7b. oc adm drain node2.openshift.com --delete-local-data
+7c. oc get pods -o wide
+
+8a. oc expose service simple-webapp-color --hostname=app1.openshift.com
+
+9a. curl http://app1.openshift.com
+
+10a. oc adm manage-node --schedulable=true node2.openshift.com
+10b. oc label node node2.openshift.com region=primary --overwrite=true
+10c. oc label node node1.openshift.com region=primary --overwrite=true
+
