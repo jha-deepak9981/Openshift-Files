@@ -1,0 +1,36 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+## Resource Type
+metadata:
+  name: httpd
+## Build config name
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'httpd:latest'
+## Image Stream name
+  source:
+    git:
+      ref: master
+      uri: 'https://github.com/jha-deepak9981/php-sample.git'
+## Source code URL
+    type: Git
+  strategy:
+    sourceStrategy:
+## Build Strategy
+      from:
+        kind: ImageStreamTag
+        name: httpd:2.4
+        namespace: openshift
+    type: Source
+  triggers:
+    - imageChange:
+      type: ImageChange
+    - type: ConfigChange
+    - generic:
+        secret: 9c85c665c1669333
+      type: Generic
+    - github:
+        secret: a77ae530a9bf7094
+      type: GitHub
